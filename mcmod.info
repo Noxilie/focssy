@@ -1,0 +1,18 @@
+[
+{
+  "modid" : "focssy",
+  "name" : "focssy",
+  "version" : "0.3",
+  "url" : "",
+  "credits" : "",
+  "authors" : [
+    "Noxilie"
+  ],
+  "description" : "Forge Client-Server Synchronizer",
+  "logoFile" : "",
+  "updateUrl" : "",
+  "parent" : "",
+  "screenshots": [
+  ]
+}
+]

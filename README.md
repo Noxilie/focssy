@@ -24,15 +24,18 @@ How it should work (server-side):
 |
 |-config.zip
 |-modlist.txt
-|-badmods.txt
+|-bmodlist.txt
+|-umodlist.txt
 ```
 mods - directory that contains all your current client mods
 
 config.zip - archive of your minecraft/config directory
 
-modlist.txt - list of all your client mods
+modlist.txt - list of all your client mods that every client should have
 
-badmods.txt - list of mods that don't have mcmod.info
+bmodlist.txt - list of "bad" mods (that don't have mcmod.info)
+
+umodlist.txt - list of unwanted mods (if client have it, it will be deleted)
 
 2) modlist.txt syntax - modId,modVersion,modFileName separated by three whitespace characters. One row - one mod.
 ```
@@ -41,8 +44,10 @@ somemod2   0.6   someMod2_v0.6.zip
 somemod3   0.2   someMod3_v0.2.jar
 ```
 
-3) badmods.txt syntax - modName (part of modFileName that you don't expect to change). One row - one name.
+3) 
+bmodlist.txt syntax - modName (part of modFileName that you don't expect to change). One row - one name.
 ```
 So, if your modFileName is something like this: mygreatsupermod_ver0.0.0.3.zip
 The modName should be: mygreatsupermod
 ```
+umodlist.txt syntax - same as bmodlist, except if it's a "good" mod, modName should be modId.

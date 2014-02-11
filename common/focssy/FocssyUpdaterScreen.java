@@ -15,6 +15,7 @@ public class FocssyUpdaterScreen extends GuiScreen {
 	public int updateStatus;
 	
 	private GuiButton btnDone;
+	private boolean btnStatus;
 	
 	private FocssyUpdater updater;
 	private Thread tUpdater;
@@ -22,6 +23,9 @@ public class FocssyUpdaterScreen extends GuiScreen {
 	public FocssyUpdaterScreen(){
 		updater = new FocssyUpdater(this);
 		tUpdater = new Thread(updater);
+		btnStatus=false;
+		updateStatus=-1;
+        tUpdater.start();
 	}
 
 	
@@ -31,9 +35,7 @@ public class FocssyUpdaterScreen extends GuiScreen {
      */
     public void initGui(){
         this.buttonList.add(btnDone = new GuiSmallButton(1, this.width / 2 - 75, this.height - 38, I18n.getString("gui.done")));
-        btnDone.enabled=false;
-        updateStatus=-1;
-        tUpdater.start();
+        btnDone.enabled=btnStatus;
     }
 
     @Override
@@ -58,7 +60,6 @@ public class FocssyUpdaterScreen extends GuiScreen {
     public void drawScreen(int par1, int par2, float par3){
     	ArrayList<String> consoleClone;
     	
-    	System.out.println("UpdateStatus - " + updateStatus);
     	if(updateStatus>-1){
     		btnDone.enabled=true;
         }

@@ -24,7 +24,7 @@ public class Focssy extends DummyModContainer{
 		ModMetadata meta = getMetadata();
 		meta.modId = "focssy";
 		meta.name = "Focssy";
-		meta.version = "0.2";
+		meta.version = "0.3";
 		meta.credits = "";
 		meta.authorList = Arrays.asList("Noxilie");
 		meta.description = "Forge client-server synchronizer";

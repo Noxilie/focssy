@@ -138,62 +138,66 @@ public class FocssyUpdater implements Runnable {
 		return false;
 	}
 	
-	public void scanLocalMods(){
+	public void getMods(String dir){
 		int completor;
 		
-		String modId="";
+		String modId;
 		String modVer;
 		String modFn;
 		
-		say("Scanning mods dir...",true);
-    	File folder = new File(mcDir+"mods");
+    	File folder = new File(dir);
 		File[] listOfFiles = folder.listFiles();
 		
+		say("Scanning "+ dir, false);
 		for (int i = 0; i < listOfFiles.length; i++) {
-			if (listOfFiles[i].isFile() && (listOfFiles[i].getName().contains(".jar")||listOfFiles[i].getName().contains(".zip"))) {
-				modVer="---";
-				modFn=listOfFiles[i].getName();
-				
-				try{
-					ZipFile zf = new ZipFile(new File(mcDir+"mods"+File.separator+listOfFiles[i].getName()));
-					ZipEntry ze = zf.getEntry("mcmod.info");
-					if(ze!=null){
-						completor=0;
-						
-						BufferedReader in = new BufferedReader(new InputStreamReader(zf.getInputStream(ze)));
-						String inputLine;
-						while ((inputLine = in.readLine()) != null){
-							if(inputLine.contains("\"modid\"")){
-								completor=completor+1;
-								modId=inputLine.substring(inputLine.indexOf('\"',inputLine.indexOf(':'))+1,inputLine.lastIndexOf('\"'));
-							}else if(inputLine.contains("\"version\"")){
-								completor=completor+1;
-								modVer=inputLine.substring(inputLine.indexOf('\"',inputLine.indexOf(':'))+1,inputLine.lastIndexOf('\"'));
+			if (listOfFiles[i].isFile()){
+				if((listOfFiles[i].getName().contains(".jar")||listOfFiles[i].getName().contains(".zip"))) {
+					modId="---";
+					modVer="---";
+					modFn=listOfFiles[i].getPath().replace(mcDir+"mods"+File.separator, "");
+					
+					try{
+						ZipFile zf = new ZipFile(new File(dir+File.separator+listOfFiles[i].getName()));
+						ZipEntry ze = zf.getEntry("mcmod.info");
+						if(ze!=null){
+							completor=0;
+							
+							BufferedReader in = new BufferedReader(new InputStreamReader(zf.getInputStream(ze)));
+							String inputLine;
+							while ((inputLine = in.readLine()) != null){
+								if(inputLine.contains("\"modid\"")){
+									completor=completor+1;
+									modId=inputLine.substring(inputLine.indexOf('\"',inputLine.indexOf(':'))+1,inputLine.lastIndexOf('\"'));
+								}else if(inputLine.contains("\"version\"")){
+									completor=completor+1;
+									modVer=inputLine.substring(inputLine.indexOf('\"',inputLine.indexOf(':'))+1,inputLine.lastIndexOf('\"'));
+								}
+								if(completor==2){
+									break;	
+								}
 							}
-							if(completor==2){
-								break;	
+							in.close();
+							zf.close();
+						}else{
+							for (int j = 0; j < bModlist.size(); j++){
+								if(listOfFiles[i].getName().contains(bModlist.get(j))){
+									modId=bModlist.get(j);
+								}
 							}
 						}
-						in.close();
-						zf.close();
-					}else{
-						for (int j = 0; j < bModlist.size(); j++){
-							if(listOfFiles[i].getName().contains(bModlist.get(j))){
-								modId=bModlist.get(j);
-							}
-						}
+					}catch (IOException e){
+						e.printStackTrace();
 					}
-				}catch (IOException e){
-					e.printStackTrace();
+					if(!isUnwanted(modId,modFn)){
+						localModlist.add(new String[]{modId,modVer,modFn});
+						//System.out.println(modId+"   "+modVer+"   "+modFn);
+					}
 				}
-				if(!isUnwanted(modId,modFn)){
-					localModlist.add(new String[]{modId,modVer,modFn});
-					//System.out.println(modId+"   "+modVer+"   "+modFn);
-				}
+			}else{
+				getMods(listOfFiles[i].getPath());
 			}
 		}
-		say("DONE!",true);
-		say("Modfiles found: "+ localModlist.size(),true);
+		say("Modfiles found: "+ localModlist.size(),false);
 	}
     
 	public int checkModpack(){
@@ -224,7 +228,7 @@ public class FocssyUpdater implements Runnable {
 			if(localModlist.get(i)[0].compareTo(smod[0])==0){
 				if(localModlist.get(i)[1].compareTo("---")==0){
 					//badmod it is
-					if(localModlist.get(i)[2].compareTo(smod[2])!=0){
+					if(localModlist.get(i)[2].compareTo(preparePath(smod[2]))!=0){
 						res=1;
 					}else{
 						res=0;
@@ -246,7 +250,7 @@ public class FocssyUpdater implements Runnable {
 			res=downloadFile("mods"+File.separator+smod[2]);	
 		}else if(res==1){
 			say("New version! Updating " + smod[0],false);
-			File file = new File(mcDir+"mods"+File.separator+preparePath(localModlist.get(i)[2]));
+			File file = new File(mcDir+"mods"+File.separator+localModlist.get(i)[2]);
 			file.delete();
 			res=downloadFile("mods"+File.separator+smod[2]);
 		}
@@ -311,7 +315,10 @@ public class FocssyUpdater implements Runnable {
 	  		return 0;
 	  	}
 		loadUModlist();
-	  	scanLocalMods();
+		say("Searching for installed mods", true);
+	  	getMods(mcDir+"mods");
+	  	say("Modfiles found: "+ localModlist.size(),true);
+
 	  	res=checkModpack();
 	  	
 		if(res!=0){
@@ -323,6 +330,6 @@ public class FocssyUpdater implements Runnable {
 		}else{
 			say("Can't find any new mods in server rep. Contact your server overlord.",true);
 			return 0;
-		}	
+		}
 	}
 }

@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import focssy.Focssy;
-
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class FocssyClassTransformer implements IClassTransformer {

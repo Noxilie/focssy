@@ -4,17 +4,20 @@ import java.io.File;
 import java.util.Map;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import focssy.Focssy;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@IFMLLoadingPlugin.MCVersion("1.6.4")
 public class FocssyLoadingPlugin implements IFMLLoadingPlugin {
 public static File location;
-	
+
 	@Override
 	@Deprecated
 	public String[] getLibraryRequestClass(){
 		return null;
 	}
 
+	@SideOnly(Side.CLIENT)
 	@Override
 	public String[] getASMTransformerClass(){
 		return new String[]{FocssyClassTransformer.class.getName()};
@@ -22,7 +25,7 @@ public static File location;
 
 	@Override
 	public String getModContainerClass(){
-		return Focssy.class.getName();
+		return null;
 	}
 
 	@Override
@@ -30,6 +33,7 @@ public static File location;
 		return null;
 	}
 
+	@SideOnly(Side.CLIENT)
 	@Override
 	public void injectData(Map<String, Object> data) {
 		location = (File) data.get("coremodLocation");

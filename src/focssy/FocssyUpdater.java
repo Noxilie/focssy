@@ -317,7 +317,7 @@ public class FocssyUpdater implements Runnable {
 	public int update(){
 		int res=0;
 		
-		say("Welcome to Focssy"+focssy.Focssy.instance.meta.version+"!",true);
+		say("Welcome to Focssy"+focssy.Focssy.instance.version+"!",true);
 		if(!loadBModlist()){
 	  		say("Couldn't connect to "+modpackUrl,true);
 	  		return 0;

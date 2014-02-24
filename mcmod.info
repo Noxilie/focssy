@@ -2,7 +2,8 @@
 {
   "modid" : "focssy",
   "name" : "focssy",
-  "version" : "0.4",
+  "version" : "0.5",
+  "mcversion" : "1.6.4",
   "url" : "",
   "credits" : "",
   "authors" : [

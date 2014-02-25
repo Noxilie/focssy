@@ -12,8 +12,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import net.minecraft.client.Minecraft;
-
 public class FocssyUpdater implements Runnable {
 
 	private String mcDir;
@@ -30,8 +28,8 @@ public class FocssyUpdater implements Runnable {
 
 	public FocssyUpdater(FocssyUpdaterScreen inst){
 		scrInst = inst;
-		mcDir = Minecraft.getMinecraft().mcDataDir.getAbsolutePath() + File.separator;
-		modpackUrl = Focssy.instance.modpackUrl;
+		mcDir = focssy.Focssy.instance.mcDir;
+		modpackUrl = focssy.Focssy.instance.modpackUrl;
 		newModsCount=0;
 		updModsCount=0;
 	}

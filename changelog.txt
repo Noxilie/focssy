@@ -1,5 +1,5 @@
--- 0.5.2
+-- 0.5.2 --
 fixed - no call to Focssy.preInit()
 
--- 0.5.1
+-- 0.5.1 --
 added proxys for future serverSide update

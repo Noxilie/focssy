@@ -1,3 +1,6 @@
+-- 0.6.1
+added feature - server-side mod will make modlist.txt for you!
+
 -- 0.5.2
 fixed - no call to Focssy.preInit()
 

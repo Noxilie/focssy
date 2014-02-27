@@ -8,8 +8,9 @@
  *
  * Contributors:
  *     cpw - implementation
+ *     
+ * -focssy version-
  */
-
 package cpw.mods.fml.client;
 
 import net.minecraft.client.gui.GuiButton;
@@ -29,6 +30,9 @@ public class GuiModsMissingForServer extends GuiScreen
     public GuiModsMissingForServer(ModMissingPacket modsMissing)
     {
         this.modsMissing = modsMissing;
+        for (ArtifactVersion v : modsMissing.getModList()){
+        	System.out.println("[focssy] Missing mod: "+v.getLabel()+" "+v.getRangeString());
+        }
     }
 
     @Override
@@ -72,7 +76,14 @@ public class GuiModsMissingForServer extends GuiScreen
         this.drawCenteredString(this.fontRenderer, "Client-server mods versions mismatch!", this.width / 2, offset, 0xFFFFFF);
         offset += 10;
         this.drawCenteredString(this.fontRenderer, "Do you want to sync your mods with this server?", this.width / 2, offset, 0xFFFFFF);
+        offset += 15;
+        this.drawCenteredString(this.fontRenderer, "Mods missing - total: "+modsMissing.getModList().size(), this.width / 2, offset, 0xFFFFFF);
         offset += 5;
+        for (ArtifactVersion v : modsMissing.getModList())
+        {
+            offset += 10;
+            this.drawCenteredString(this.fontRenderer, String.format("%s : %s", v.getLabel(), v.getRangeString()), this.width / 2, offset, 0xEEEEEE);
+        }
         super.drawScreen(par1, par2, par3);
     }
 }

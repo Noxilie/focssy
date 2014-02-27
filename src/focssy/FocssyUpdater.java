@@ -3,14 +3,21 @@ package focssy;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 
 public class FocssyUpdater implements Runnable {
 
@@ -19,24 +26,42 @@ public class FocssyUpdater implements Runnable {
 	private FocssyUpdaterScreen scrInst;
 	private int newModsCount;
 	private int updModsCount;
+	private boolean isClient;
+	private boolean newBadMod;
 	
 	private ArrayList<String[]> localModlist = new ArrayList<String[]>();  
-	private ArrayList<String> bModlist = new ArrayList<String>();           //badModsList       (without mcmod.info)
+	private ArrayList<String> bModlist = new ArrayList<String>();          //badModsList       (without mcmod.info)
 	private ArrayList<String> uModlist = new ArrayList<String>();           //unwantedModsList
+	private List<ModContainer> aModlist = Loader.instance().getActiveModList();
 	
     private boolean sayComplete=true;
 
 	public FocssyUpdater(FocssyUpdaterScreen inst){
 		scrInst = inst;
+		init();
+	}
+	
+	public FocssyUpdater(){
+		scrInst = null;
+		init();
+	}
+	
+	private void init(){
+		newBadMod = false;
 		mcDir = focssy.Focssy.instance.mcDir;
 		modpackUrl = focssy.Focssy.instance.modpackUrl;
+		isClient = focssy.Focssy.instance.isClient;
 		newModsCount=0;
 		updModsCount=0;
 	}
 	
 	@Override
 	public void run(){
-		scrInst.updateStatus = update();
+		if(isClient){
+			scrInst.updateStatus = update();
+		}else{
+			createLists();
+		}
 	}
 	
 	/**
@@ -47,19 +72,19 @@ public class FocssyUpdater implements Runnable {
   	public void say(String str, boolean onScreen){
   		if(str.contains("...")){
   			System.out.print("[Focssy] "+str);
-  			if(onScreen){
+  			if(onScreen && scrInst!=null){
   				scrInst.console.add(str);
   			}
   			sayComplete=false;
   		}else{
   			if(sayComplete){
   				System.out.println("[Focssy] "+str);
-  				if(onScreen){
+  				if(onScreen  && scrInst!=null){
   					scrInst.console.add(str);
   				}
   			}else{
   				System.out.println(str);
-  				if(onScreen){
+  				if(onScreen  && scrInst!=null){
   					scrInst.console.set(scrInst.console.size()-1,scrInst.console.get(scrInst.console.size()-1)+str);
   				}
   				sayComplete=true;
@@ -91,33 +116,14 @@ public class FocssyUpdater implements Runnable {
 		return 1;
 	}
   
-	public boolean loadBModlist(){
-    	say("Loading bad mods list...",true);
+	public boolean loadrModlist(ArrayList<String> lst, String Fn){
+    	say("Loading "+Fn+"...",true);
     	try {
-			URL badmods = new URL(modpackUrl+"bmodlist.txt");
-			BufferedReader in = new BufferedReader(new InputStreamReader(badmods.openStream()));
+			URL remoteFile = new URL(modpackUrl+Fn);
+			BufferedReader in = new BufferedReader(new InputStreamReader(remoteFile.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null){
-				bModlist.add(inputLine);
-			}
-			in.close();
-		}catch (IOException e){
-			say("ERROR!",true);
-			e.printStackTrace();
-			return false;
-		}
-    	say("DONE!",true);
-    	return true;
-	}
-    
-	public boolean loadUModlist(){
-    	say("Loading unwanted mods list...",true);
-    	try {
-			URL badmods = new URL(modpackUrl+"umodlist.txt");
-			BufferedReader in = new BufferedReader(new InputStreamReader(badmods.openStream()));
-			String inputLine;
-			while ((inputLine = in.readLine()) != null){
-				uModlist.add(inputLine);
+				lst.add(inputLine);
 			}
 			in.close();
 		}catch (IOException e){
@@ -140,7 +146,7 @@ public class FocssyUpdater implements Runnable {
 		return false;
 	}
 	
-	public void getMods(String dir){
+	public void scanDir(String dir){
 		int completor;
 		
 		String modId;
@@ -181,22 +187,46 @@ public class FocssyUpdater implements Runnable {
 							in.close();
 							zf.close();
 						}else{
-							for (int j = 0; j < bModlist.size(); j++){
-								if(listOfFiles[i].getName().contains(bModlist.get(j))){
-									modId=bModlist.get(j);
+							//no mcmod.info, try to search in activeMods
+							for (int j = 0; j < aModlist.size(); j++){
+								if(listOfFiles[i].getName().equals(aModlist.get(j).getSource().getName())){
+									modId=aModlist.get(j).getModId();
+									modVer=aModlist.get(j).getVersion();
+									break;
 								}
 							}
 						}
 					}catch (IOException e){
 						e.printStackTrace();
 					}
-					if(!isUnwanted(modId,modFn)){
+					
+					//last chance - search the mod in badModlist
+					if(modId.equals("---")){
+						for (int j = 0; j < bModlist.size(); j++){
+							if(listOfFiles[i].getName().contains(bModlist.get(j))){
+								modId=bModlist.get(j);
+								break;
+							}
+						}
+					}
+					
+					
+					//System.out.println(modId+"   "+modVer+"   "+modFn);
+					if(isClient){
+						if(!isUnwanted(modId,modFn)){
+							localModlist.add(new String[]{modId,modVer,modFn});
+						}
+					}else{
+						if(modId.equals("---")){
+							modId=modFn;
+							bModlist.add(modFn);
+							newBadMod=true;
+						}
 						localModlist.add(new String[]{modId,modVer,modFn});
-						//System.out.println(modId+"   "+modVer+"   "+modFn);
 					}
 				}
 			}else{
-				getMods(listOfFiles[i].getPath());
+				scanDir(listOfFiles[i].getPath());
 			}
 		}
 		say("Modfiles found: "+ localModlist.size(),false);
@@ -316,13 +346,13 @@ public class FocssyUpdater implements Runnable {
 		int res=0;
 		
 		say("Welcome to Focssy"+focssy.Focssy.instance.version+"!",true);
-		if(!loadBModlist()){
+		if(!loadrModlist(bModlist,"bmodlist.txt")){
 	  		say("Couldn't connect to "+modpackUrl,true);
 	  		return 0;
 	  	}
-		loadUModlist();
+		loadrModlist(uModlist,"umodlist.txt");
 		say("Searching for installed mods", true);
-	  	getMods(mcDir+"mods");
+	  	scanDir(mcDir+"mods");
 	  	say("Modfiles found: "+ localModlist.size(),true);
 
 	  	res=checkModpack();
@@ -338,6 +368,37 @@ public class FocssyUpdater implements Runnable {
 		}else{
 			say("Something is wrong. Look at your minecraft log and contact your server overlord!",true);
 			return 0;
+		}
+	}
+	
+	public void createLists(){
+		say("Welcome to Focssy"+focssy.Focssy.instance.version+"!",false);
+		loadrModlist(bModlist,"bmodlist.txt");
+		say("Searching modfiles",false);
+		scanDir(mcDir+"mods");
+		
+		PrintWriter writer;
+		try {
+			say("Writing modlist.txt",false);
+			writer = new PrintWriter("modlist.txt", "UTF-8");
+				for (String[] text : localModlist) {
+					writer.println(text[0]+"   "+text[1]+"   "+text[2]);
+			    }
+			writer.close();
+			
+			say("Writing bmodlist.txt",false);
+			if(newBadMod){
+				say("New badMods detected! Please, correct file bmodlist.txt manually!",false);
+			}
+			writer = new PrintWriter("bmodlist.txt", "UTF-8");
+				for (String text : bModlist) {
+					writer.println(text);
+			    }
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 }

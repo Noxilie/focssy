@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -15,7 +16,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid="focssy", version="0.6.1", useMetadata=true)
+@Mod(modid="focssy", version="0.7.1", useMetadata=true)
 @NetworkMod(clientSideRequired=true)
 public class Focssy{
 	public String modpackUrl;
@@ -53,8 +54,7 @@ public class Focssy{
 	public void postInit(FMLPostInitializationEvent evt){
 		if(!isClient){
 			FocssyUpdater updater = new FocssyUpdater();
-			Thread tUpdater = new Thread(updater);
-	        tUpdater.start();
+	        updater.serverRun();
 		}
 	}
 }

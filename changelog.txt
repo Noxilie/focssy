@@ -1,3 +1,11 @@
+-- 0.7.1 --
+added feature - ServerOnlyModlist (mods that shouldn't be added to modlist.txt)
+added feature - ClientOnlyModlist (mods that should be added to modlist.txt)
+
+-- 0.7 --
+fixed updation of mods with wrong versionNumber in mod.info (check filename first for all mods)
+changed bmodlist syntax - {modId   modUniqueName}
+
 -- 0.6.1 --
 added feature - server-side mod will make modlist.txt for you!
 

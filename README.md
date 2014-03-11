@@ -26,6 +26,8 @@ How it should work (server-side):
 |-modlist.txt
 |-bmodlist.txt
 |-umodlist.txt
+|-somodlist.txt
+|-comodlist.txt
 ```
 mods - directory that contains all your current client mods
 
@@ -35,19 +37,29 @@ modlist.txt - list of all your client mods that every client should have
 
 bmodlist.txt - list of "bad" mods (that don't have mcmod.info)
 
-umodlist.txt - list of unwanted mods (if client have it, it will be deleted)
+umodlist.txt - list of unwanted mod-ids(if client have it, it will be deleted)
+
+somodlist.txt - list of ids of server-only mods
+
+comodlist.txt - list of client-only mods
 
 2) modlist.txt syntax - modId,modVersion,modFileName separated by three whitespace characters. One row - one mod.
+(generated automatically by the server-side mod)
 ```
 somemod1   0.1   someMod1_v0.1.jar
 somemod2   0.6   someMod2_v0.6.zip
 somemod3   0.2   someMod3_v0.2.jar
 ```
 
-3) 
-bmodlist.txt syntax - modName (part of modFileName that you don't expect to change). One row - one name.
+3) bmodlist.txt syntax - modId,modName (part of modFileName that you don't expect to change) separated by three whitespace characters. One row - one mod.
+So, if your modFileName is something like this: mygreatsupermod_ver0.0.0.3.zip and it's id is "greatsupermod"
+You should have something like this in your bmodlist.txt:
 ```
-So, if your modFileName is something like this: mygreatsupermod_ver0.0.0.3.zip
-The modName should be: mygreatsupermod
+greatsupermod   mygreatsupermod
 ```
-umodlist.txt syntax - same as bmodlist, except if it's a "good" mod, modName should be modId.
+4) umodlist.txt and somodlist.txt syntax - just a lists of ids. One row - one id.
+```
+somemod4
+somemod5
+```
+5) comodlist.txt - same as modlist.txt

@@ -72,9 +72,9 @@ public class Focssy{
 	public void summonAssasin(){
 		byte[] buffer = new byte[1024];
 		File fa = new File("focssyAssasin.jar");
-		if(!fa.exists()){
-			try {
-	    		ZipFile zf = new ZipFile(new File(mcDir+"mods"+File.separator+"focssy.zip"));
+		try {
+			if(!fa.exists()){
+	    		ZipFile zf = new ZipFile(new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()));
 				ZipEntry ze = zf.getEntry("focssyAssasin.jar");
 				if(ze!=null){
 					FileOutputStream fos2 = new FileOutputStream(fa);             
@@ -90,10 +90,11 @@ public class Focssy{
 				}
 				zf.close();
 				
-				java.lang.Runtime.getRuntime().exec("java -jar focssyAssasin.jar");
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+			java.lang.Runtime.getRuntime().exec("java -jar focssyAssasin.jar");
+		
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

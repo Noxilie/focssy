@@ -1,3 +1,6 @@
+-- 0.8.1 --
+fixed wrong self location
+
 -- 0.8 --
 returned to "startMinecraft -> check updates" scheme. So, we don't need coremod here anymore.
 all unneded mods (old versions) will be deleted AFTER miecraft exit event (fix for windows systems)

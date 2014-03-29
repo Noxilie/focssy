@@ -74,7 +74,7 @@ public class Focssy{
 		File fa = new File("focssyAssasin.jar");
 		if(!fa.exists()){
 			try {
-	    		ZipFile zf = new ZipFile(new File(mcDir+"mods"+File.separator+"focssy.jar"));
+	    		ZipFile zf = new ZipFile(new File(mcDir+"mods"+File.separator+"focssy.zip"));
 				ZipEntry ze = zf.getEntry("focssyAssasin.jar");
 				if(ze!=null){
 					FileOutputStream fos2 = new FileOutputStream(fa);             

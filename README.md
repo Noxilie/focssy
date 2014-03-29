@@ -1,8 +1,10 @@
 focssy
 ======
 
-Forge Client-Server Synchronizer mod for minecraft.</br>
-Shoud be used with [a focssyAssasin](https://github.com/Noxilie/focssyAssasin)</br>
+Forge Client-Server Synchronizer mod for minecraft.
+
+Shoud be used with [focssyAssasin](https://github.com/Noxilie/focssyAssasin)
+
 Place focssyAssasin.jar into focssy.zip
 
 How it should work (client-side):

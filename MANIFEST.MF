@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-FMLCorePlugin: focssy.injecter.FocssyLoadingPlugin
-FMLCorePluginContainsFMLMod: true
-Created-By: 1.7.0_21 (Oracle Corporation)
-MCVersion: 1.6.4

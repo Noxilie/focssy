@@ -16,20 +16,19 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import net.minecraft.server.MinecraftServer;
-
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 
-public class FocssyUpdater implements Runnable {
+public class FocssyUpdater{
 
 	private String mcDir;
 	private String modpackUrl;
-	private FocssyUpdaterScreen scrInst;
 	private int newModsCount;
 	private int updModsCount;
 	private boolean isClient;
 	private boolean newBadMod;
+	
+	private ArrayList<String> modsToDelete = new ArrayList<String>();
 	
 	private ArrayList<String[]> localModlist = new ArrayList<String[]>();		//all our modfiles(zip and jar) in mods dir and subdirs
 	private ArrayList<String[]> bModlist = new ArrayList<String[]>();       	//badModsList      (without mcmod.info)
@@ -40,17 +39,7 @@ public class FocssyUpdater implements Runnable {
 	
     private boolean sayComplete=true;
 
-	public FocssyUpdater(FocssyUpdaterScreen inst){
-		scrInst = inst;
-		init();
-	}
-	
 	public FocssyUpdater(){
-		scrInst = null;
-		init();
-	}
-	
-	private void init(){
 		newBadMod = false;
 		mcDir = focssy.Focssy.instance.mcDir;
 		modpackUrl = focssy.Focssy.instance.modpackUrl;
@@ -59,34 +48,19 @@ public class FocssyUpdater implements Runnable {
 		updModsCount=0;
 	}
 	
-	@Override
-	public void run(){
-		say("Welcome to Focssy"+focssy.Focssy.instance.version+"!",true);
-		scrInst.updateStatus = clientRun();
-	}
-	
 	/**
 	 * @param str - string to say
 	 * @param onScreen - display this on the updaterScreen?
 	 */
-  	public void say(String str, boolean onScreen){
+  	public void say(String str){
   		if(str.contains("...")){
   			System.out.print("[Focssy] "+str);
-  			if(onScreen && scrInst!=null){
-  				scrInst.console.add(str);
-  			}
   			sayComplete=false;
   		}else{
   			if(sayComplete){
   				System.out.println("[Focssy] "+str);
-  				if(onScreen  && scrInst!=null){
-  					scrInst.console.add(str);
-  				}
   			}else{
   				System.out.println(str);
-  				if(onScreen  && scrInst!=null){
-  					scrInst.console.set(scrInst.console.size()-1,scrInst.console.get(scrInst.console.size()-1)+str);
-  				}
   				sayComplete=true;
   			}	
   		}
@@ -102,17 +76,17 @@ public class FocssyUpdater implements Runnable {
 	}
     
     public int downloadFile(String fileName){
-    	say("Downloading "+ fileName +", please wait...",false);
+    	say("Downloading "+ fileName +", please wait...");
 		try{
 			File newFile = new File(mcDir+preparePath(fileName));
 			URL adress = new URL(modpackUrl+fileName);
 			org.apache.commons.io.FileUtils.copyURLToFile(adress, newFile, 5000, 5000);
 		}catch(IOException ex){
-			say("ERROR!",false);
+			say("ERROR!");
 			ex.printStackTrace();
 			return 0;
 		}
-		say("DONE!",false);
+		say("DONE!");
 		return 1;
 	}
   
@@ -126,7 +100,7 @@ public class FocssyUpdater implements Runnable {
 			}
 			in.close();
 		}catch (IOException e){
-			say("ERROR!",true);
+			say("ERROR!");
 			e.printStackTrace();
 			return false;
 		}
@@ -143,18 +117,17 @@ public class FocssyUpdater implements Runnable {
 			}
 			in.close();
 		}catch (IOException e){
-			say("ERROR!",true);
+			say("ERROR!");
 			e.printStackTrace();
 			return false;
 		}
     	return true;
 	}
 	
-	private boolean isUnwanted(String mod, String fn){
+	private boolean isUnwanted(String modId, String modFn){
 		for (String v : uModlist){
-			if(mod.equals(v)){
-				File file = new File(mcDir+"mods"+File.separator+fn);
-				file.delete();
+			if(modId.equals(v)){
+				modsToDelete.add(modFn);
 				return true;
 			}
 		}
@@ -176,7 +149,7 @@ public class FocssyUpdater implements Runnable {
     	}
 		File[] listOfFiles = folder.listFiles();
 		
-		say("Scanning "+ dir, false);
+		say("Scanning "+ dir);
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()){
 				if((listOfFiles[i].getName().contains(".jar")||listOfFiles[i].getName().contains(".zip"))) {
@@ -258,7 +231,7 @@ public class FocssyUpdater implements Runnable {
     
 	public int checkModpack(){
 		int res=0;
-		say("Sinchronizing mods, please wait.",true);
+		say("Sinchronizing mods, please wait.");
 		try {
 			URL modlist = new URL(modpackUrl+"modlist.txt");
 			BufferedReader in = new BufferedReader(new InputStreamReader(modlist.openStream()));
@@ -299,13 +272,15 @@ public class FocssyUpdater implements Runnable {
 		}
 				
 		if(res==-1){
-			say("New mod! Downloading " + smod[0],false);
+			say("New mod! Downloading " + smod[0]);
 			res=downloadFile("mods/"+smod[2]);
 			newModsCount=newModsCount+res;
 		}else if(res==1){
-			say("New version! Updating " + smod[0],false);
-			File file = new File(mcDir+"mods"+File.separator+localModlist.get(i)[2]);
-			file.delete();
+			say("New version! Updating " + smod[0]);
+			//mark for deletion at the end
+			if(!localModlist.get(i)[2].equals(smod[2])){
+				modsToDelete.add(localModlist.get(i)[2]);
+			}
 			res=downloadFile("mods/"+smod[2]);
 			updModsCount=updModsCount+res;
 		}
@@ -313,7 +288,7 @@ public class FocssyUpdater implements Runnable {
 	}
 	
 	public int syncConfigs(){
-		say("Synchronizing mods configs",true);
+		say("Synchronizing mods configs");
 		byte[] buffer = new byte[1024];
 		String workingDir=mcDir;
 		
@@ -365,26 +340,43 @@ public class FocssyUpdater implements Runnable {
 		int res=0;
 
 		if(!loadbModlist()){
-	  		say("Couldn't connect to "+modpackUrl,true);
+	  		say("Couldn't connect to "+modpackUrl);
 	  		return 0;
 	  	}
 		loadModlist(uModlist,"umodlist.txt");
-		say("Searching for installed mods", true);
+		say("Searching for installed mods");
 	  	scanDir(mcDir+"mods", localModlist);
-	  	say("Modfiles found: "+ localModlist.size(),true);
+	  	say("Modfiles found: "+ localModlist.size());
 
 	  	res=checkModpack();
-	  	say("Total files downloaded: "+(newModsCount+updModsCount),true);
-	  	say("New:     "+newModsCount,true);
-	  	say("Updated: "+updModsCount,true);
+	  	say("Total files downloaded: "+(newModsCount+updModsCount));
+	  	say("New:     "+newModsCount);
+	  	say("Updated: "+updModsCount);
+	  	
 		if(res!=0){
-  		syncConfigs();
-			say("./------------------------------------------------------------------------\\.",true);
-			say("<|WE'VE GOT UPDATE! CLIENT WILL BE STOPPED! PLEASE, RESTART IT MANUALLY!!!|>",true);
-			say(".\\------------------------------------------------------------------------/.",true);
+			syncConfigs();
+			
+			if(modsToDelete.size()>0){
+				PrintWriter writer;
+				try {
+					writer = new PrintWriter("modsToDelete", "UTF-8");
+						for (String text : modsToDelete) {
+							writer.println(text);
+					    }
+					writer.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			say("./------------------------------------------------------------------------\\.");
+			say("<|WE'VE GOT UPDATE! CLIENT WILL BE STOPPED! PLEASE, RESTART IT MANUALLY!!!|>");
+			say(".\\------------------------------------------------------------------------/.");
 			return 1;
 		}else{
-			say("Something is wrong. Look at your minecraft log and contact your server overlord!",true);
+			say("Can't find any new mods");
 			return 0;
 		}
 	}
@@ -403,14 +395,14 @@ public class FocssyUpdater implements Runnable {
 		int res=0;
 		boolean isNewMod=true;
 		
-		say("Welcome to Focssy"+focssy.Focssy.instance.version+"!",false);	
+		say("Welcome to Focssy"+focssy.Focssy.instance.version+"!");	
 		loadbModlist();
 		loadModlist(soModlist,"somodlist.txt");
 		loadModlist(coModlist,"comodlist.txt");
 		scanDir(mcDir+"mods", localModlist);
 		PrintWriter writer;
 		try {
-			say("Writing modlist.txt",false);
+			say("Writing modlist.txt");
 			writer = new PrintWriter("modlist.txt", "UTF-8");
 				for (String[] text : localModlist){
 					if(!isServerOnly(text[0])){
@@ -422,9 +414,9 @@ public class FocssyUpdater implements Runnable {
 			    }
 			writer.close();
 			
-			say("Writing bmodlist.txt",false);
+			say("Writing bmodlist.txt");
 			if(newBadMod){
-				say("New badMods detected! Please, correct file bmodlist.txt manually!",false);
+				say("New badMods detected! Please, correct file bmodlist.txt manually!");
 			}
 			writer = new PrintWriter("bmodlist.txt", "UTF-8");
 				for (String[] text : bModlist) {

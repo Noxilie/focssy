@@ -1,3 +1,7 @@
+-- 0.8 --
+returned to "startMinecraft -> check updates" scheme. So, we don't need coremod here anymore.
+all unneded mods (old versions) will be deleted AFTER miecraft exit event (fix for windows systems)
+
 -- 0.7.1 --
 added feature - ServerOnlyModlist (mods that shouldn't be added to modlist.txt)
 added feature - ClientOnlyModlist (mods that should be added to modlist.txt)

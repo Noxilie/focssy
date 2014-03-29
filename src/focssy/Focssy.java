@@ -1,10 +1,15 @@
 package focssy;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -16,7 +21,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid="focssy", version="0.7.1", useMetadata=true)
+@Mod(modid="focssy", useMetadata=true)
 @NetworkMod(clientSideRequired=true)
 public class Focssy{
 	public String modpackUrl;
@@ -52,9 +57,43 @@ public class Focssy{
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent evt){
+		System.out.println("[Focssy] Welcome to Focssy"+version+"!");
+		FocssyUpdater updater = new FocssyUpdater();
 		if(!isClient){
-			FocssyUpdater updater = new FocssyUpdater();
 	        updater.serverRun();
+		}else{
+			if(updater.clientRun()==1){
+				summonAssasin();
+            	Minecraft.getMinecraft().shutdownMinecraftApplet();
+			}
+		}
+	}
+	
+	public void summonAssasin(){
+		byte[] buffer = new byte[1024];
+		File fa = new File("focssyAssasin.jar");
+		if(!fa.exists()){
+			try {
+	    		ZipFile zf = new ZipFile(new File(mcDir+"mods"+File.separator+"focssy.jar"));
+				ZipEntry ze = zf.getEntry("focssyAssasin.jar");
+				if(ze!=null){
+					FileOutputStream fos2 = new FileOutputStream(fa);             
+					InputStream zis = zf.getInputStream(ze);
+					
+					int len;
+					while ((len = zis.read(buffer)) > 0) {
+						fos2.write(buffer, 0, len);
+					}
+					
+					zis.close();
+					fos2.close();
+				}
+				zf.close();
+				
+				java.lang.Runtime.getRuntime().exec("java -jar focssyAssasin.jar");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

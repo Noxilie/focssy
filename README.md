@@ -10,7 +10,7 @@ How it should work (client-side):
 
 You should place url of your "update server" here, really.
 
-2) When you'll try to connect to some mc-server with mods that you don't have on your client, focssy will try to connect to http://place.your.url.here/ and do all the job for you :)
+2) At minecraft-startup focssy will try to connect to http://place.your.url.here/ and do all the job for you :)
 
 
 How it should work (server-side):

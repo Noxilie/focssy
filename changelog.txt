@@ -1,9 +1,16 @@
+-- 0.9 --
+nearly full revamp of mod
+moved to forge 1.7.10
+splitted to foccsy (client-only mod) and focssyScanner (service-client mod, not for players) for future foccsyLauncher migration
+now all the mods should contain valid mcmod.info or focssy.info (provided by focssyScanner if mcmod.info is missing)
+moved to gradle... it's magnificient thing :)
+
 -- 0.8.2 --
 fixed wrong self location
 
 -- 0.8 --
 returned to "startMinecraft -> check updates" scheme. So, we don't need coremod here anymore.
-all unneded mods (old versions) will be deleted AFTER miecraft exit event (fix for windows systems)
+all unneded mods (old versions) will be deleted AFTER minecraft exit event (fix for windows systems)
 
 -- 0.7.1 --
 added feature - ServerOnlyModlist (mods that shouldn't be added to modlist.txt)

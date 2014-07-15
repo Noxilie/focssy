@@ -1,0 +1,22 @@
+[
+{
+  "modid" : "focssy",
+  "name" : "Focssy",
+  "version" : "${project_version}",
+  "mcversion" : "${minecraft_version}",
+  "url" : "https://github.com/Noxilie/focssy",
+  "credits" : "",
+  "authors" : [
+    "Noxilie"
+  ],
+  "requiredMods": [
+      "Forge"
+  ],
+  "description" : "Forge Client-Server Synchronizer, Build against forge ${forge_version}",
+  "logoFile" : "",
+  "updateUrl" : "",
+  "parent" : "",
+  "screenshots": [
+  ]
+}
+]

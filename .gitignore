@@ -1,0 +1,8 @@
+build/*
+.nb-gradle/*
+
+LICENSE.txt
+cw
+.nb-gradle-properties
+.nb-gradle
+.gradle

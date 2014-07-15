@@ -3,11 +3,13 @@ focssy
 
 Forge Client-Server Synchronizer mod for minecraft.
 
+focssy.jar - client-side mod, will do all the job on the client-side
+focssyScanner.jar - admin-stuff, this will help you to generate modlist.txt
+
 How it should work (client-side):
 ======
 1) minecraft/config/focssy.cfg
 ---> modpackUrl=http://place.your.url.here/
-
 You should place url of your "update server" here, really.
 
 2) At minecraft-startup focssy will try to connect to http://place.your.url.here/ and do all the job for you :)
@@ -37,7 +39,7 @@ umodlist.txt - list of unwanted mod-ids(if client have it, it will be deleted, t
 
 
 2) modlist.txt syntax - modId,modVersion,modFileName separated by three whitespace characters. One row - one mod.
-(generated automatically by the server-side mod)
+(generated automatically by focssyScanner)
 ```
 somemod1   0.1   someMod1_v0.1.jar
 somemod2   0.6   someMod2_v0.6.zip
